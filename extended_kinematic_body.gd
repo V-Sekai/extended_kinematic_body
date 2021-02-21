@@ -36,7 +36,7 @@ static func get_capsule_query_parameters(p_transform, p_height, p_radius, p_mask
 
 static func test_slope(p_normal, p_up, p_slope_max_angle) -> float:
 	var dot_product: float = p_normal.dot(p_up)
-	return (dot_product >= 0.0 and dot_product < p_slope_max_angle) == false
+	return !(dot_product >= 0.0 and dot_product < p_slope_max_angle)
 
 
 func get_virtual_step_offset() -> float:
@@ -96,8 +96,6 @@ func _step_down(p_dss: PhysicsDirectSpaceState) -> void:
 
 
 func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
-	var global_transform: Transform = get_global_transform()
-	
 	var dss: PhysicsDirectSpaceState = PhysicsServer.space_get_direct_state(get_world().get_space())
 	var motion: Vector3 = Vector3(0.0, 0.0, 0.0)
 	if dss:
