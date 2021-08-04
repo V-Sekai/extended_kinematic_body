@@ -1,32 +1,32 @@
-extends KinematicBody
+extends CharacterBody3D
 
 var virtual_step_offset: float = 0.0
 
-export (Vector3) var up: Vector3 = Vector3(0.0, 1.0, 0.0)
-export (float) var step_height: float = 0.2
-export (float) var anti_bump_factor: float = 0.75
-export (float) var slope_stop_min_velocity: float = 0.05
-export (float) var slope_max_angle: float = deg2rad(45)
-export (bool) var infinite_interia: bool = false
+@export  var up: Vector3 # (Vector3) = Vector3(0.0, 1.0, 0.0)
+@export  var step_height: float # (float) = 0.2
+@export  var anti_bump_factor: float # (float) = 0.75
+@export  var slope_stop_min_velocity: float # (float) = 0.05
+@export  var slope_max_angle: float # (float) = deg2rad(45)
+@export  var infinite_interia: bool # (bool) = false
 
 var is_grounded: bool = false
 
-onready var exclusion_array: Array = [self]
+@onready var exclusion_array: Array = [self]
 
-static func get_sphere_query_parameters(p_transform, p_radius, p_mask, p_exclude) -> PhysicsShapeQueryParameters:
-	var query: PhysicsShapeQueryParameters = PhysicsShapeQueryParameters.new()
+static func get_sphere_query_parameters(p_transform, p_radius, p_mask, p_exclude) -> PhysicsShapeQueryParameters3D:
+	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
 	query.set_transform(p_transform)
-	var shape: SphereShape = SphereShape.new()
+	var shape: SphereShape3D = SphereShape3D.new()
 	shape.set_radius(p_radius)
 	shape.set_mask(p_mask)
 	shape.set_exclude(p_exclude)
 	
 	return query
 
-static func get_capsule_query_parameters(p_transform, p_height, p_radius, p_mask, p_exclude) -> PhysicsShapeQueryParameters:
-	var query: PhysicsShapeQueryParameters = PhysicsShapeQueryParameters.new()
+static func get_capsule_query_parameters(p_transform, p_height, p_radius, p_mask, p_exclude) -> PhysicsShapeQueryParameters3D:
+	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
 	query.set_transform(p_transform)
-	var shape: CapsuleShape = CapsuleShape.new()
+	var shape: CapsuleShape3D = CapsuleShape3D.new()
 	shape.set_height(p_height)
 	shape.set_radius(p_radius)
 	shape.set_mask(p_mask)
@@ -43,7 +43,7 @@ func get_virtual_step_offset() -> float:
 	return virtual_step_offset
 
 
-func _is_valid_kinematic_collision(p_collision: KinematicCollision) -> bool:
+func _is_valid_kinematic_collision(p_collision: KinematicCollision3D) -> bool:
 	if p_collision == null:
 		return false
 	else:
@@ -53,7 +53,7 @@ func _is_valid_kinematic_collision(p_collision: KinematicCollision) -> bool:
 	return true
 
 
-func _step_down(p_dss: PhysicsDirectSpaceState) -> void:
+func _step_down(p_dss: PhysicsDirectSpaceState3D) -> void:
 	# Process step down / fall
 	virtual_step_offset = 0.0
 	var collided: bool = test_move(global_transform, -(up * step_height), infinite_interia)
@@ -80,7 +80,7 @@ func _step_down(p_dss: PhysicsDirectSpaceState) -> void:
 					exclusion_array,
 					collision_mask
 				)
-				if ray_result.empty() or ! test_slope(ray_result.normal, up, slope_max_angle):
+				if ray_result.is_empty() or ! test_slope(ray_result.normal, up, slope_max_angle):
 					is_grounded = false
 				# Is there valid floor beneath me?
 				ray_result = p_dss.intersect_ray(
@@ -89,39 +89,41 @@ func _step_down(p_dss: PhysicsDirectSpaceState) -> void:
 					exclusion_array,
 					collision_mask
 				)
-				if ray_result.empty() or ! test_slope(ray_result.normal, up, slope_max_angle):
+				if ray_result.is_empty() or ! test_slope(ray_result.normal, up, slope_max_angle):
 					is_grounded = false
 	else:
 		is_grounded = false
 
 
 func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
-	var dss: PhysicsDirectSpaceState = PhysicsServer.space_get_direct_state(get_world().get_space())
+	var dss: PhysicsDirectSpaceState3D = PhysicsServer3D.space_get_direct_state(get_world_3d().get_space())
 	var motion: Vector3 = Vector3(0.0, 0.0, 0.0)
 	if dss:
 		var shape_owners = get_shape_owners()
 		if shape_owners.size() == 1:
 			var shape_count: int = shape_owner_get_shape_count(shape_owners[0])
 			if shape_count == 1:
-				var shape: Shape = shape_owner_get_shape(shape_owners[0], 0)
-				if shape is CapsuleShape:
+				var shape: Shape3D = shape_owner_get_shape(shape_owners[0], 0)
+				if shape is CapsuleShape3D:
 					if is_grounded:
 						# Raise off the ground
-						var step_up_kinematic_result: KinematicCollision = move_and_collide(
+						var step_up_kinematic_result: KinematicCollision3D = move_and_collide(
 							up * step_height, infinite_interia, false
 						)
 						# Do actual motion
-						motion = move_and_slide(
-							p_motion,
-							up,
-							slope_stop_min_velocity,
-							p_slide_attempts,
-							slope_max_angle,
-							infinite_interia
-						)
+						# FIXME: They changed move_and_slide to have 0 arguments????
+						motion = move_and_slide()
+						#motion = move_and_slide(
+						#	p_motion,
+						#	up,
+						#	slope_stop_min_velocity,
+						#	p_slide_attempts,
+						#	slope_max_angle,
+						#	infinite_interia
+						#)
 						
 						# Return to ground
-						var step_down_kinematic_result: KinematicCollision = null
+						var step_down_kinematic_result: KinematicCollision3D = null
 						
 						if step_up_kinematic_result == null:
 							virtual_step_offset = -step_height
@@ -149,7 +151,7 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 							
 							# Use it to verify whether it is a slope
 							if (
-								ray_result.empty()
+								ray_result.is_empty()
 								or ! test_slope(ray_result.normal, up, slope_max_angle)
 							):
 								var slope_limit_fix: int = 2
@@ -166,7 +168,7 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 											
 											# Use the step down normal to slide down to the ground
 											motion = motion.slide(step_down_normal)
-											var slide_down_result: KinematicCollision = move_and_collide(
+											var slide_down_result: KinematicCollision3D = move_and_collide(
 												motion, infinite_interia, false
 											)
 											
@@ -185,9 +187,11 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 						else:
 							_step_down(dss)
 					else:
-						motion = move_and_slide(
-							p_motion, up, 0.0, p_slide_attempts, 1.0, infinite_interia
-						)
+						# FIXME: They changed move_and_slide to have 0 arguments????
+						motion = move_and_slide()
+						#motion = move_and_slide(
+						#	p_motion, up, 0.0, p_slide_attempts, 1.0, infinite_interia
+						#)
 						if is_on_floor():
 							is_grounded = true
 							_step_down(dss)
@@ -202,6 +206,6 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 func _enter_tree() -> void:
 	var collided: bool = test_move(global_transform, -(up * anti_bump_factor), infinite_interia)
 	if collided:
-		var motion_collision: KinematicCollision = move_and_collide(up * -anti_bump_factor, infinite_interia, false)
+		var motion_collision: KinematicCollision3D = move_and_collide(up * -anti_bump_factor, infinite_interia, false)
 		if motion_collision:
 			is_grounded = true

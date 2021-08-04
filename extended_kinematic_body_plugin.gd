@@ -1,4 +1,4 @@
-tool
+@tool
 extends EditorPlugin
 
 
@@ -12,14 +12,14 @@ func _notification(p_notification: int):
 			print("Destroying ExtendedKinematicBody plugin")
 
 
-func get_name() -> String:
+func _get_plugin_name() -> String:
 	return "ExtendedKinematicBody"
 
 
 func _enter_tree() -> void:
 	add_custom_type(
 		"ExtendedKinematicBody",
-		"KinematicBody",
+		"KinematicBody3D",
 		preload("extended_kinematic_body.gd"),
 		preload("icon_extended_kinematic_body.svg")
 	)
