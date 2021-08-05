@@ -21,7 +21,7 @@ func _enter_tree() -> void:
 		"ExtendedKinematicBody",
 		"KinematicBody3D",
 		preload("extended_kinematic_body.gd"),
-		preload("icon_extended_kinematic_body.svg")
+		load("res://addons/extended_kinematic_body/icon_extended_kinematic_body.svg")
 	)
 
 
