@@ -2,12 +2,12 @@ extends CharacterBody3D
 
 var virtual_step_offset: float = 0.0
 
-@export  var up: Vector3 # (Vector3) = Vector3(0.0, 1.0, 0.0)
-@export  var step_height: float # (float) = 0.2
-@export  var anti_bump_factor: float # (float) = 0.75
-@export  var slope_stop_min_velocity: float # (float) = 0.05
-@export  var slope_max_angle: float # (float) = deg2rad(45)
-@export  var infinite_interia: bool # (bool) = false
+@export  var up: Vector3 = Vector3(0.0, 1.0, 0.0)
+@export  var step_height: float = 0.2
+@export  var anti_bump_factor: float = 0.75
+@export  var slope_stop_min_velocity: float = 0.05
+@export  var slope_max_angle: float = deg2rad(45)
+@export  var infinite_interia: bool = false
 
 var is_grounded: bool = false
 
@@ -56,13 +56,12 @@ func _is_valid_kinematic_collision(p_collision: KinematicCollision3D) -> bool:
 func _step_down(p_dss: PhysicsDirectSpaceState3D) -> void:
 	# Process step down / fall
 	virtual_step_offset = 0.0
-	var collided: bool = test_move(global_transform, -(up * step_height), infinite_interia)
+	var collided: bool = test_move(global_transform, -(up * step_height))
 	if collided:
-		var kinematic_collision = move_and_collide(
-			-(up * anti_bump_factor), infinite_interia, false)
+		var kinematic_collision = move_and_collide(-(up * anti_bump_factor))
 		if ! _is_valid_kinematic_collision(kinematic_collision):
 			kinematic_collision = move_and_collide(
-				-(up * (step_height - anti_bump_factor)), infinite_interia, false
+				-(up * (step_height - anti_bump_factor))
 			)
 			if _is_valid_kinematic_collision(kinematic_collision):
 				virtual_step_offset = kinematic_collision.get_travel().length() + anti_bump_factor
@@ -108,11 +107,13 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 					if is_grounded:
 						# Raise off the ground
 						var step_up_kinematic_result: KinematicCollision3D = move_and_collide(
-							up * step_height, infinite_interia, false
+							up * step_height
 						)
 						# Do actual motion
 						# FIXME: They changed move_and_slide to have 0 arguments????
-						motion = move_and_slide()
+						linear_velocity = p_motion
+						move_and_slide()
+						motion = linear_velocity
 						#motion = move_and_slide(
 						#	p_motion,
 						#	up,
@@ -128,13 +129,12 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 						if step_up_kinematic_result == null:
 							virtual_step_offset = -step_height
 							step_down_kinematic_result = move_and_collide(
-								up * -step_height, infinite_interia, false
+								up * -step_height
 							)
 						else:
 							virtual_step_offset = -step_up_kinematic_result.get_travel().length()
 							step_down_kinematic_result = move_and_collide(
-								(up * -step_height) + step_up_kinematic_result.remainder,
-								infinite_interia, false
+								(up * -step_height) + step_up_kinematic_result.remainder
 							)
 							
 						if _is_valid_kinematic_collision(step_down_kinematic_result):
@@ -164,13 +164,11 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 											break
 										else:
 											#move_and_collide(
-											#motion, infinite_interia, false) # Is this needed?
+											#motion) # Is this needed?
 											
 											# Use the step down normal to slide down to the ground
 											motion = motion.slide(step_down_normal)
-											var slide_down_result: KinematicCollision3D = move_and_collide(
-												motion, infinite_interia, false
-											)
+											var slide_down_result: KinematicCollision3D = move_and_collide(motion)
 											
 											# Accumulate this back into the visual step offset
 											if _is_valid_kinematic_collision(slide_down_result):
@@ -181,14 +179,15 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 										break
 									slope_limit_fix -= 1
 							else:
-								if move_and_collide(
-									motion, infinite_interia, false) == null:
+								if move_and_collide(motion) == null:
 									is_grounded = false
 						else:
 							_step_down(dss)
 					else:
 						# FIXME: They changed move_and_slide to have 0 arguments????
-						motion = move_and_slide()
+						linear_velocity = p_motion
+						move_and_slide()
+						motion = linear_velocity
 						#motion = move_and_slide(
 						#	p_motion, up, 0.0, p_slide_attempts, 1.0, infinite_interia
 						#)
@@ -204,8 +203,8 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 
 
 func _enter_tree() -> void:
-	var collided: bool = test_move(global_transform, -(up * anti_bump_factor), infinite_interia)
+	var collided: bool = test_move(global_transform, -(up * anti_bump_factor))
 	if collided:
-		var motion_collision: KinematicCollision3D = move_and_collide(up * -anti_bump_factor, infinite_interia, false)
+		var motion_collision: KinematicCollision3D = move_and_collide(up * -anti_bump_factor)
 		if motion_collision:
 			is_grounded = true
