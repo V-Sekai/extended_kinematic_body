@@ -47,7 +47,7 @@ func _is_valid_kinematic_collision(p_collision: KinematicCollision3D) -> bool:
 	if p_collision == null:
 		return false
 	else:
-		if ! p_collision.remainder.length() > 0.00001:
+		if ! p_collision.get_remainder().length() > 0.00001:
 			return false
 
 	return true
@@ -58,7 +58,7 @@ func _step_down(p_dss: PhysicsDirectSpaceState3D) -> void:
 	virtual_step_offset = 0.0
 	var collided: bool = test_move(global_transform, -(up * step_height))
 	if collided:
-		var kinematic_collision = move_and_collide(-(up * anti_bump_factor))
+		var kinematic_collision: KinematicCollision3D = move_and_collide(-(up * anti_bump_factor))
 		if ! _is_valid_kinematic_collision(kinematic_collision):
 			kinematic_collision = move_and_collide(
 				-(up * (step_height - anti_bump_factor))
@@ -71,11 +71,11 @@ func _step_down(p_dss: PhysicsDirectSpaceState3D) -> void:
 		if ! kinematic_collision:
 			is_grounded = false
 		else:
-			if ! test_slope(kinematic_collision.normal, up, slope_max_angle):
+			if ! test_slope(kinematic_collision.get_normal(), up, slope_max_angle):
 				# Is the collision slope relative to world space?
-				var ray_result = p_dss.intersect_ray(
-					kinematic_collision.position + (up * step_height),
-					kinematic_collision.position - (up * step_height),
+				var ray_result: Dictionary = p_dss.intersect_ray(
+					kinematic_collision.get_position() + (up * step_height),
+					kinematic_collision.get_position() - (up * step_height),
 					exclusion_array,
 					collision_mask
 				)
@@ -134,7 +134,7 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 						else:
 							virtual_step_offset = -step_up_kinematic_result.get_travel().length()
 							step_down_kinematic_result = move_and_collide(
-								(up * -step_height) + step_up_kinematic_result.remainder
+								(up * -step_height) + step_up_kinematic_result.get_remainder()
 							)
 							
 						if _is_valid_kinematic_collision(step_down_kinematic_result):
@@ -143,8 +143,8 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 							
 							# Use raycast from just above the kinematic result to determine the world normal of the collided surface
 							var ray_result = dss.intersect_ray(
-								step_down_kinematic_result.position + (up * step_height),
-								step_down_kinematic_result.position - (up * anti_bump_factor),
+								step_down_kinematic_result.get_position() + (up * step_height),
+								step_down_kinematic_result.get_position() - (up * anti_bump_factor),
 								exclusion_array,
 								collision_mask
 							)
