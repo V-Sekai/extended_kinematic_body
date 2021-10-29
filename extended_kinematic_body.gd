@@ -59,11 +59,11 @@ func _step_down(p_dss: PhysicsDirectSpaceState3D) -> void:
 	var collided: bool = test_move(global_transform, -(up * step_height))
 	if collided:
 		var kinematic_collision: KinematicCollision3D = move_and_collide(-(up * anti_bump_factor))
-		if ! _is_valid_kinematic_collision(kinematic_collision):
+		if kinematic_collision == null or ! _is_valid_kinematic_collision(kinematic_collision):
 			kinematic_collision = move_and_collide(
 				-(up * (step_height - anti_bump_factor))
 			)
-			if _is_valid_kinematic_collision(kinematic_collision):
+			if kinematic_collision != null and _is_valid_kinematic_collision(kinematic_collision):
 				virtual_step_offset = kinematic_collision.get_travel().length() + anti_bump_factor
 			else:
 				virtual_step_offset = step_height
@@ -156,7 +156,7 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 							):
 								var slope_limit_fix: int = 2
 								while slope_limit_fix > 0:
-									if _is_valid_kinematic_collision(step_down_kinematic_result):
+									if step_down_kinematic_result != null and _is_valid_kinematic_collision(step_down_kinematic_result):
 										var step_down_normal: Vector3 = step_down_kinematic_result.normal
 										
 										# If you are now on a valid surface, break the loop
@@ -171,7 +171,7 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 											var slide_down_result: KinematicCollision3D = move_and_collide(motion)
 											
 											# Accumulate this back into the visual step offset
-											if _is_valid_kinematic_collision(slide_down_result):
+											if slide_down_result != null and _is_valid_kinematic_collision(slide_down_result):
 												virtual_step_offset += slide_down_result.get_travel().length()
 											else:
 												virtual_step_offset = 0.0
