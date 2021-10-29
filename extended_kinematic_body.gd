@@ -137,7 +137,7 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 								(up * -step_height) + step_up_kinematic_result.get_remainder()
 							)
 							
-						if _is_valid_kinematic_collision(step_down_kinematic_result):
+						if step_down_kinematic_result != null and _is_valid_kinematic_collision(step_down_kinematic_result):
 							virtual_step_offset += step_down_kinematic_result.get_travel().length()
 							motion = (up * -step_height)
 							
