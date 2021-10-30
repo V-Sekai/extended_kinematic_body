@@ -157,7 +157,7 @@ func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
 								var slope_limit_fix: int = 2
 								while slope_limit_fix > 0:
 									if step_down_kinematic_result != null and _is_valid_kinematic_collision(step_down_kinematic_result):
-										var step_down_normal: Vector3 = step_down_kinematic_result.normal
+										var step_down_normal: Vector3 = step_down_kinematic_result.get_normal()
 										
 										# If you are now on a valid surface, break the loop
 										if test_slope(step_down_normal, up, slope_max_angle):
