@@ -94,7 +94,7 @@ func _step_down(p_dss: PhysicsDirectSpaceState3D) -> void:
 		is_grounded = false
 
 
-func extended_move(p_motion: Vector3, p_slide_attempts: int) -> Vector3:
+func extended_move(p_motion: Vector3, _p_slide_attempts: int) -> Vector3:
 	var dss: PhysicsDirectSpaceState3D = PhysicsServer3D.space_get_direct_state(get_world_3d().get_space())
 	var motion: Vector3 = Vector3(0.0, 0.0, 0.0)
 	if dss:
