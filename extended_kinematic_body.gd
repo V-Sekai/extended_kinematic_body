@@ -72,22 +72,23 @@ func _step_down(p_dss: PhysicsDirectSpaceState3D) -> void:
 			is_grounded = false
 		else:
 			if ! test_slope(kinematic_collision.get_normal(), up, slope_max_angle):
+				var param : PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
+				param.from = kinematic_collision.get_position() + (up * step_height)
+				param.to = kinematic_collision.get_position() - (up * step_height)
+				param.exclude = exclusion_array
+				param.collision_mask = collision_mask
 				# Is the collision slope relative to world space?
-				var ray_result: Dictionary = p_dss.intersect_ray(
-					kinematic_collision.get_position() + (up * step_height),
-					kinematic_collision.get_position() - (up * step_height),
-					exclusion_array,
-					collision_mask
-				)
+				var ray_result: Dictionary = p_dss.intersect_ray(param)
 				if ray_result.is_empty() or ! test_slope(ray_result.normal, up, slope_max_angle):
 					is_grounded = false
+				
+				var valid_floor_param : PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
+				valid_floor_param.from = global_transform.origin
+				valid_floor_param.to = global_transform.origin - (up * step_height * 2.0)
+				valid_floor_param.exclude = exclusion_array
+				valid_floor_param.collision_mask = collision_mask
 				# Is there valid floor beneath me?
-				ray_result = p_dss.intersect_ray(
-					global_transform.origin,
-					global_transform.origin - (up * step_height * 2.0),
-					exclusion_array,
-					collision_mask
-				)
+				ray_result = p_dss.intersect_ray(valid_floor_param)
 				if ray_result.is_empty() or ! test_slope(ray_result.normal, up, slope_max_angle):
 					is_grounded = false
 	else:
@@ -95,6 +96,8 @@ func _step_down(p_dss: PhysicsDirectSpaceState3D) -> void:
 
 
 func extended_move(p_motion: Vector3, _p_slide_attempts: int) -> Vector3:
+	if get_world_3d() == null:
+		return Vector3(0.0, 0.0, 0.0)
 	var dss: PhysicsDirectSpaceState3D = PhysicsServer3D.space_get_direct_state(get_world_3d().get_space())
 	var motion: Vector3 = Vector3(0.0, 0.0, 0.0)
 	if dss:
@@ -141,13 +144,14 @@ func extended_move(p_motion: Vector3, _p_slide_attempts: int) -> Vector3:
 							virtual_step_offset += step_down_kinematic_result.get_travel().length()
 							motion = (up * -step_height)
 							
+							var result_param : PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.new()
+							result_param.from = step_down_kinematic_result.get_position() + (up * step_height)
+							result_param.to = step_down_kinematic_result.get_position() - (up * anti_bump_factor)
+							result_param.exclude = exclusion_array
+							result_param.collision_mask = collision_mask
+							
 							# Use raycast from just above the kinematic result to determine the world normal of the collided surface
-							var ray_result = dss.intersect_ray(
-								step_down_kinematic_result.get_position() + (up * step_height),
-								step_down_kinematic_result.get_position() - (up * anti_bump_factor),
-								exclusion_array,
-								collision_mask
-							)
+							var ray_result = dss.intersect_ray(result_param)
 							
 							# Use it to verify whether it is a slope
 							if (
