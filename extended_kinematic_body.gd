@@ -2,12 +2,12 @@ extends CharacterBody3D
 
 var virtual_step_offset: float = 0.0
 
-@export  var up: Vector3 = Vector3(0.0, 1.0, 0.0)
-@export  var step_height: float = 0.2
-@export  var anti_bump_factor: float = 0.75
-@export  var slope_stop_min_velocity: float = 0.05
-@export  var slope_max_angle: float = deg2rad(45)
-@export  var infinite_interia: bool = false
+@export var up: Vector3 = Vector3(0.0, 1.0, 0.0)
+@export var step_height: float = 0.2
+@export var anti_bump_factor: float = 0.75
+@export var slope_stop_min_velocity: float = 0.05
+@export var slope_max_angle: float = deg2rad(45)
+@export var infinite_interia: bool = false
 
 var is_grounded: bool = false
 
