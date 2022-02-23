@@ -114,9 +114,9 @@ func extended_move(p_motion: Vector3, _p_slide_attempts: int) -> Vector3:
 						)
 						# Do actual motion
 						# FIXME: They changed move_and_slide to have 0 arguments????
-						motion_velocity = p_motion
+						velocity = p_motion
 						move_and_slide()
-						motion = motion_velocity
+						motion = velocity
 						#motion = move_and_slide(
 						#	p_motion,
 						#	up,
@@ -189,9 +189,9 @@ func extended_move(p_motion: Vector3, _p_slide_attempts: int) -> Vector3:
 							_step_down(dss)
 					else:
 						# FIXME: They changed move_and_slide to have 0 arguments????
-						motion_velocity = p_motion
+						velocity = p_motion
 						move_and_slide()
-						motion = motion_velocity
+						motion = velocity
 						#motion = move_and_slide(
 						#	p_motion, up, 0.0, p_slide_attempts, 1.0, infinite_interia
 						#)
