@@ -206,7 +206,7 @@ func extended_move(p_motion: Vector3, _p_slide_attempts: int) -> Vector3:
 	return motion
 
 
-func _enter_tree() -> void:
+func _physics_process(_delta):
 	var collided: bool = test_move(global_transform, -(up * anti_bump_factor))
 	if collided:
 		var motion_collision: KinematicCollision3D = move_and_collide(up * -anti_bump_factor)
