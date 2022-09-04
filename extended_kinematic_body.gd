@@ -6,7 +6,7 @@ var virtual_step_offset: float = 0.0
 @export var step_height: float = 0.2
 @export var anti_bump_factor: float = 0.75
 @export var slope_stop_min_velocity: float = 0.05
-@export var slope_max_angle: float = deg2rad(45)
+@export var slope_max_angle: float = deg_to_rad(45)
 @export var infinite_interia: bool = false
 
 var is_grounded: bool = false
