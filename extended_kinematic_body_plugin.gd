@@ -18,10 +18,7 @@ func _get_plugin_name() -> String:
 
 func _enter_tree() -> void:
 	add_custom_type(
-		"ExtendedKinematicBody",
-		"KinematicBody3D",
-		preload("./extended_kinematic_body.gd"),
-		load("res://addons/extended_kinematic_body/icon_extended_kinematic_body.svg")
+		"ExtendedKinematicBody", "KinematicBody3D", preload("./extended_kinematic_body.gd"), load("res://addons/extended_kinematic_body/icon_extended_kinematic_body.svg")
 	)
 
 
